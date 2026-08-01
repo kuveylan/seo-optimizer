@@ -1,16 +1,46 @@
 {
-  "name": "seo-optimizer",
+  "name": "seo-audit",
   "version": "1.1.0",
-  "description": "AI-powered comprehensive SEO audit, competitor analysis and professional PDF reporting tool",
+  "description": "AI destekli kapsamlı SEO denetim aracı: tam site taraması, Lighthouse tarzı 0-100 skorlama, Claude AI uzman raporu, rakip analizi ve kurumsal PDF raporlama",
   "main": "src/server.js",
   "bin": {
-    "seo-audit": "bin/seo-audit"
+    "seo-audit": "bin/seo-audit.js"
   },
   "scripts": {
     "start": "node src/server.js",
     "cli": "node bin/seo-audit.js",
     "seo-audit": "node bin/seo-audit.js"
   },
+  "keywords": [
+    "seo",
+    "seo-audit",
+    "seo-analyzer",
+    "lighthouse",
+    "site-crawler",
+    "ai",
+    "claude",
+    "report",
+    "pdf"
+  ],
+  "license": "MIT",
+  "author": "kuveylan",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kuveylan/seo-optimizer.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "views/",
+    "public/",
+    "README.md",
+    "LICENSE",
+    ".env.example",
+    "install.sh"
+  ],
   "dependencies": {
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",

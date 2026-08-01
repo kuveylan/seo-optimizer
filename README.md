@@ -74,32 +74,46 @@ SEO Optimizer'ı doğrudan terminalden kullanabilirsiniz. Global kurulum gerekme
 
 ### Kurulum
 
+**Seçenek 1 — Global komut (önerilen):** tek komutla her dizinden çalışır.
+
 ```bash
-# 1. Depoyu indirip dizine girin
+# npm paketi olarak (npm'e publish edildikten sonra)
+npm install -g seo-audit
+
+# veya doğrudan GitHub'dan
+npm install -g github:kuveylan/seo-optimizer
+
+# Denetimi çalıştır
+seo-audit audit https://example.com
+```
+
+**Seçenek 2 — Repo içinde:** global kurulum istemezseniz.
+
+```bash
 git clone https://github.com/kuveylan/seo-optimizer.git
 cd seo-optimizer
-
-# 2. Bağımlılıkları kurun
 npm install
+
+node bin/seo-audit.js audit https://example.com
 ```
 
 ### Kullanım
 
 ```bash
 # 🔍 Tam site SEO denetimi
-node bin/seo-audit.js audit https://example.com
+seo-audit audit https://example.com
 
 # 🔍 Denetim + kurumsal PDF raporu indir
-node bin/seo-audit.js audit https://example.com --pdf
+seo-audit audit https://example.com --pdf
 
 # ⚔️ Rakip karşılaştırma
-node bin/seo-audit.js compare https://example.com https://example.org
+seo-audit compare https://example.com https://example.org
 
 # 🗺️ XML Sitemap üret
-node bin/seo-audit.js sitemap https://example.com
+seo-audit sitemap https://example.com
 ```
 
-> **İpucu:** Daha kısa yazmak için `node bin/seo-audit.js` yerine `npm run seo-audit -- ` kullanabilirsiniz (ör. `npm run seo-audit -- audit https://example.com`).
+> **İpucu:** Repo içinde çalışıyorsanız `node bin/seo-audit.js` veya `npm run seo-audit -- ` de kullanabilirsiniz.
 >
 > `example.com` resmî bir test alanıdır (IANA) — ilk denemede onu kullanın, kendi sitenizi taramadan önce aracın nasıl çalıştığını görün.
 
@@ -282,8 +296,8 @@ seo-optimizer/
 │   ├── emailSender.js         # E-posta gönderim modülü (SMTP)
 │   └── index.js               # (eski, kullanılmıyor) basit tek sayfa CLI
 ├── bin/
-│   ├── seo-audit              # Global komut girişi (npm link kullananlar için)
-│   └── seo-audit.js           # Terminal denetim aracı (node bin/seo-audit.js)
+│   ├── seo-audit.js           # Terminal denetim aracı (node bin/seo-audit.js)
+│   └── seo-audit              # (eski shebang girişi, kullanılmıyor)
 ├── views/                     # EJS şablonları
 │   ├── index.ejs              # SEO-optimize landing page
 │   ├── result.ejs             # Analiz sonuç sayfası
