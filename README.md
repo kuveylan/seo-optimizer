@@ -68,70 +68,54 @@ Genel skorun 100 olmamasına neden olan **her eksikliği** önem derecesiyle (�
 
 ---
 
-## ⚡ Terminal (CLI) Kullanımı
+## ⚡ Terminal (CLI) — 3 dakikada çalıştır
 
-SEO Optimizer'ı doğrudan terminalden kullanabilirsiniz. Global kurulum gerekmez.
-
-### Kurulum
-
-**Seçenek 1 — Global komut (önerilen):** tek komutla her dizinden çalışır.
+En hızlı yol: **klonla, kur, çalıştır.** Hepsi kopyala-yapıştır:
 
 ```bash
-# npm paketi olarak (npm'e publish edildikten sonra)
-npm install -g seo-audit
-
-# veya doğrudan GitHub'dan
-npm install -g github:kuveylan/seo-optimizer
-
-# Denetimi çalıştır
-seo-audit audit https://example.com
-```
-
-**Seçenek 2 — Repo içinde:** global kurulum istemezseniz.
-
-```bash
+# 1. Depoyu indir
 git clone https://github.com/kuveylan/seo-optimizer.git
 cd seo-optimizer
-npm install
 
-node bin/seo-audit.js audit https://example.com
+# 2. Bağımlılıkları kur + `seo-audit` komutunu bilgisayarına ekle
+npm install
+npm install -g .        # "." = bu klasör; seo-audit komutu her dizinden çalışır
+
+# 3. Denetimi başlat — bitince rapor tarayıcıda otomatik açılır
+seo-audit audit https://example.com
 ```
 
-### Kullanım
+> **Kod çalıştırmak istemiyorsan** `node bin/seo-audit.js` de kullanabilirsin (ör. `node bin/seo-audit.js audit https://example.com`).
+> `example.com` resmî test alanıdır — ilk denemede onu kullanın.
+
+### Komutlar
 
 ```bash
-# 🔍 Tam site SEO denetimi
-seo-audit audit https://example.com
-
-# 🔍 Denetim + kurumsal PDF raporu indir
-seo-audit audit https://example.com --pdf
-
-# ⚔️ Rakip karşılaştırma
-seo-audit compare https://example.com https://example.org
-
-# 🗺️ XML Sitemap üret
-seo-audit sitemap https://example.com
+seo-audit audit https://example.com                    # 🔍 Tam site SEO denetimi → rapor tarayıcıda açılır
+seo-audit audit https://example.com --pdf              # 🔍 Denetim + PDF raporu indir
+seo-audit compare https://example.com https://example.org  # ⚔️ Rakip karşılaştırma
+seo-audit sitemap https://example.com                  # 🗺️ XML Sitemap üret
 ```
 
-### 🤖 AI raporu için tek komut: `seo-audit config`
+### 🤖 AI raporu (opsiyonel, tek komut)
 
-AI uzman raporunu üretmek için bir API anahtarı gerekir. Kurulumdan sonra tek komutla ayarlayın — anahtar ev dizininizdeki `~/.seo-audit.env` dosyasında güvenle saklanır:
+AI uzman raporu için bir API anahtarı gerekir. Tek komutla ayarlayın — anahtar ev dizinindeki `~/.seo-audit.env`'de güvenle saklanır:
 
 ```bash
 seo-audit config
 ```
 
-`config` önce **sağlayıcıyı** sorar, sonra ona uygun alanları ister:
+`config` önce **sağlayıcıyı** sorar:
 
 | # | Sağlayıcı | Anahtar formatı | Model örneği |
 |---|---|---|---|
-| 1 | **Anthropic Claude** (resmi API) | `sk-ant-...` | `claude-sonnet-4-5` |
+| 1 | **Anthropic Claude** | `sk-ant-...` | `claude-sonnet-4-5` |
 | 2 | **9routers** (lokal proxy) | herhangi | `mycombo` |
 | 3 | **OpenRouter** | `sk-or-v1-...` | `openrouter/openrouter/free` |
 
-### Sağlayıcıya göre ortam değişkenleri
+> 💡 **Anahtar girmesen de sistem çalışır** — teknik skorlama ve rapor üretilir; yalnızca AI bölümü atlanır.
 
-`config` bunları otomatik yazar; isterseniz elle de ayarlayabilirsiniz (`~/.seo-audit.env` veya `.private/.env`):
+### Sağlayıcıya göre ortam değişkenleri (manuel alternatif)
 
 ```bash
 # ── Seçenek 1: Anthropic ──
@@ -171,40 +155,21 @@ seo-audit audit https://example.com
 
 > 💡 Anahtar girmezseniz denetim yine çalışır — yalnızca AI raporu bölümü atlanır.
 
-### Kullanım İpuçları
+### Ne olur?
 
-> Repo içinde çalışıyorsanız `node bin/seo-audit.js` veya `npm run seo-audit -- ` de kullanabilirsiniz.
->
-> `example.com` resmî bir test alanıdır (IANA) — ilk denemede onu kullanın, kendi sitenizi taramadan önce aracın nasıl çalıştığını görün.
-
-### CLI çıktısı
-
-Denetim terminalde şunları gösterir:
+Denetim bitince **`seo-raporu-<site>.html`** dosyası oluşturulur ve **tarayıcıda otomatik açılır** — sunucu çalıştırmanıza gerek yok. Rapor şunları gösterir: genel skor, kategori barları, tespit edilen sorunlar + çözümleri, (anahtar varsa) AI raporu.
 
 ```
-╔══════════════════════════════════════════════╗
-║   SEO OPTIMIZER  v1.1                        ║
-║   Yapay Zeka Destekli SEO Denetimi           ║
-╚══════════════════════════════════════════════╝
-
-🎯 Hedef  : https://example.com
-
 📊 GENEL SKOR — https://example.com 🟡
   75/100 🟡 (1 sayfa, 1.5s)
 
-🚀 Performance     ████████████████░░░░ 100  🟢 Mükemmel
-🔍 SEO             ████████████░░░░░░░░  70  🟡 İyileştirilmeli
-...
-⚠️ Tespit Edilen Sorunlar (6)
-  🔴 [Kritik] Meta Description eksik
-  🟡 [Orta] Güvenlik başlıkları eksik
-  ...
-
-🤖 Yapay Zeka Uzman Raporu  ← API anahtarı varsa
-✔ Denetim tamamlandı. (17.4s)
+🌐 Raporu Tarayıcıda Görüntüle
+  ✓ Rapor kaydedildi: seo-raporu-example_com.html
+  🌐 Tarayıcıda açıldı. Açılmazsa dosyayı çift tıklayın.
 ```
 
-> 💡 CLI'da AI raporu yapılandırması için **`seo-audit config`** komutunu kullanın (yukarıda anlatıldı). Anahtar yoksa denetim yine çalışır — yalnızca AI raporu bölümü atlanır.
+> Repo içindeyken `node bin/seo-audit.js` veya `npm run seo-audit -- ` de kullanabilirsiniz.
+> Anahtar yoksa denetim yine çalışır — yalnızca AI raporu bölümü atlanır.
 
 ---
 
@@ -225,7 +190,7 @@ cd seo-optimizer
 npm install
 
 # 3. (Opsiyonel) AI anahtarını ayarlayın
-seo-audit config          # AI raporu için (veya el ile .private/.env düzenleyin)
+node bin/seo-audit.js config   # AI raporu için (veya el ile .private/.env düzenleyin)
 # Not: .private/ ve ~/.seo-audit.env gitignore'da — anahtarlar asla dışarı açılmaz.
 
 # 4. Sunucuyu başlatın

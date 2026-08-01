@@ -92,6 +92,118 @@ function printSection(title) {
     console.log(c('cyan', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
 }
 
+// ─── STATİK HTML RAPOR ÜRETİCİ: tarayıcıda sunucusuz görüntülenir ───
+function scoreColor(score) {
+    return score >= 90 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+}
+function scoreLabelHtml(score) {
+    return score >= 90 ? '🟢 Mükemmel' : score >= 50 ? '🟡 İyileştirilmeli' : '🔴 Zayıf';
+}
+
+function generateHtmlReport({ url, scored, issues, crawlData, aiReport, elapsed }) {
+    const s = scored.scores;
+    const cats = [
+        ['🚀 Performance', s.performance],
+        ['🔍 SEO', s.seo],
+        ['♿ Erişilebilirlik', s.accessibility],
+        ['⚙️ Best Practices', s.bestPractices],
+        ['🛡️ Güvenlik', s.security]
+    ];
+    const catBars = cats.map(([name, score]) => `
+        <div class="cat">
+            <div class="cat-head"><span>${name}</span><b style="color:${scoreColor(score)}">${score}/100</b></div>
+            <div class="bar"><div style="width:${score}%;background:${scoreColor(score)}"></div></div>
+            <span class="tag" style="background:${scoreColor(score)}22;color:${scoreColor(score)}">${scoreLabelHtml(score)}</span>
+        </div>`).join('');
+
+    const sevEmoji = { 'Kritik': '🔴', 'Orta': '🟡', 'Düşük': '🔵' };
+    const sevColor = { 'Kritik': '#ef4444', 'Orta': '#f59e0b', 'Düşük': '#3b82f6' };
+    const issueCards = issues.length === 0
+        ? '<div class="ok">🎉 Hiçbir sorun bulunamadı!</div>'
+        : issues.slice(0, 20).map(iss => `
+        <div class="issue" style="border-left-color:${sevColor[iss.severity] || '#64748b'}">
+            <div class="issue-head">
+                <span class="sev" style="color:${sevColor[iss.severity] || '#64748b'}">${sevEmoji[iss.severity] || '🔵'} ${iss.severity}</span>
+                <b>${iss.title}</b>
+            </div>
+            <p class="fix">🛠️ ${(iss.fix || iss.detail || '').replace(/</g, '&lt;')}</p>
+        </div>`).join('');
+
+    const aiHtml = aiReport && !aiReport.startsWith('❌') && !aiReport.startsWith('Hata:')
+        ? `<div class="card ai"><h2>🤖 Yapay Zeka Uzman Raporu</h2><div class="prose">${aiReport.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</div></div>`
+        : '';
+
+    return `<!DOCTYPE html>
+<html lang="tr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Analiz Raporu — ${url.replace(/</g, '&lt;')}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.6;padding:32px 16px}
+.wrap{max-width:860px;margin:0 auto}
+.hero{background:linear-gradient(135deg,#1e293b,#312e81);border-radius:20px;padding:40px;margin-bottom:24px;text-align:center}
+.hero h1{font-size:28px;margin-bottom:8px}.hero p{color:#94a3b8;font-size:14px}
+.score-ring{width:160px;height:160px;border-radius:50%;margin:24px auto;display:flex;align-items:center;justify-content:center;
+  border:8px solid ${scoreColor(s.overall)};background:#0f172a}
+.score-ring b{font-size:52px;color:${scoreColor(s.overall)}} .score-ring span{font-size:16px;color:#64748b}
+.card{background:#1e293b;border-radius:16px;padding:28px;margin-bottom:20px}
+.card h2{font-size:20px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cat{background:#0f172a;border-radius:12px;padding:16px}
+.cat-head{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px}
+.bar{height:8px;background:#334155;border-radius:4px;overflow:hidden}
+.bar div{height:100%;border-radius:4px;transition:width .5s}
+.tag{font-size:12px;display:inline-block;margin-top:8px;padding:2px 10px;border-radius:50px;font-weight:600}
+.meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;font-size:13px;color:#94a3b8}
+.meta b{color:#e2e8f0}
+.issue{border-left:4px solid;background:#0f172a;border-radius:10px;padding:16px;margin-bottom:12px}
+.issue-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.sev{font-weight:700;font-size:13px}
+.fix{font-size:14px;color:#94a3b8}
+.ok{background:#05966922;color:#34d399;padding:16px;border-radius:10px;text-align:center;font-weight:600}
+.ai .prose{font-size:14px;color:#cbd5e1;white-space:pre-wrap}
+.count{background:#334155;border-radius:6px;padding:2px 10px;font-size:13px;color:#cbd5e1}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+</style></head><body><div class="wrap">
+<div class="hero">
+  <h1>📊 SEO Analiz Raporu</h1>
+  <p>${url.replace(/</g, '&lt;')}</p>
+  <div class="score-ring"><div><b>${s.overall}</b><br><span>/ 100</span></div></div>
+  <div class="meta">
+    <span>📄 <b>${crawlData.totalPagesScanned}</b> sayfa</span>
+    <span>⚠️ <b>${crawlData.totalErrors}</b> hata</span>
+    <span>🐢 <b>${crawlData.totalSlow}</b> yavaş</span>
+    <span>⚡ <b>${crawlData.avgResponseTimeMs}ms</b> ort. yanıt</span>
+    <span>⏱️ <b>${(elapsed / 1000).toFixed(1)}s</b></span>
+  </div>
+</div>
+<div class="card"><h2>Kategori Skorları</h2><div class="grid">${catBars}</div></div>
+<div class="card">
+  <h2>⚠️ Tespit Edilen Sorunlar <span class="count">${issues.length}</span></h2>
+  ${issueCards}
+</div>
+${aiHtml}
+<div class="card" style="text-align:center;color:#64748b;font-size:13px">
+  SEO Optimizer — © 2026 kuveylan<br>Bu rapor CLI ile üretilmiştir, sunucu gerektirmez.
+</div>
+</div></body></html>`;
+}
+
+// HTML dosyasını yazıp tarayıcıda açar (sunucu gerektirmez)
+function openHtmlReport(html, filename) {
+    const filePath = path.join(process.cwd(), filename);
+    fs.writeFileSync(filePath, html, 'utf8');
+    console.log(c('green', `  ✓ Rapor kaydedildi: ${c('bold', filePath)}`));
+    try {
+        const start = process.platform === 'win32' ? 'start' : process.platform === 'darwin' ? 'open' : 'xdg-open';
+        require('child_process').spawn(start, [filePath], { detached: true, stdio: 'ignore' }).unref();
+        console.log(c('cyan', `  🌐 Tarayıcıda açıldı. Açılmazsa dosyayı çift tıklayın.`));
+    } catch (e) {
+        console.log(c('dim', `  Dosyayı tarayıcıda açmak için: ${filePath}`));
+    }
+    return filePath;
+}
+
 // ─── ALT KOMUT: audit (ana denetim) ───
 async function audit(url, options = {}) {
     console.log(banner);
@@ -157,16 +269,18 @@ async function audit(url, options = {}) {
     }
 
     // AI raporu
+    let aiReport = null;
     const hasAI = process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY !== 'your_api_key_here';
     if (hasAI) {
         printSection('🤖 Yapay Zeka Uzman Raporu');
         console.log(c('dim', 'AI raporu oluşturuluyor (30-60 sn sürebilir)...\n'));
         const aiInput = { ...scanData, siteScore: scored, detectedIssues: issues, crawlSummary: { totalPagesScanned: crawlData.totalPagesScanned, totalErrors: crawlData.totalErrors, totalSlow: crawlData.totalSlow, avgResponseTimeMs: crawlData.avgResponseTimeMs } };
-        const aiReport = await analyzeWithAI(aiInput);
+        aiReport = await analyzeWithAI(aiInput);
         if (aiReport && !aiReport.startsWith('❌') && !aiReport.startsWith('Hata:')) {
             console.log(c('white', aiReport));
         } else {
             console.log(c('yellow', `  ⚠️ AI raporu alınamadı: ${aiReport}`));
+            aiReport = null;
         }
     } else {
         printSection('🤖 Yapay Zeka Uzman Raporu');
@@ -200,21 +314,12 @@ async function audit(url, options = {}) {
 
     console.log(`\n${c('green', '✔ Denetim tamamlandı.')} ${c('dim', `(${formatMs(Date.now() - started)})`)}`);
 
-    // Web arayüzü çalışıyorsa bağlantı göster, çalışmıyorsa nasıl başlatılacağını söyle
-    const webPort = process.env.PORT || 3000;
-    const net = require('net');
-    const isWebUp = await new Promise((resolve) => {
-        const sock = net.connect(webPort, '127.0.0.1');
-        sock.once('connect', () => { sock.destroy(); resolve(true); });
-        sock.once('error', () => resolve(false));
-    });
-    if (isWebUp) {
-        console.log(`${c('dim', '📊 Web arayüzü ile detaylı rapor:')} ${c('cyan', `http://localhost:${webPort}/result?url=${encodeURIComponent(url)}`)}\n`);
-    } else {
-        console.log(`${c('dim', '📊 Web arayüzü şu an çalışmıyor. Çalıştırmak için:')}`);
-        console.log(`${c('cyan', '    npm start')}   ${c('dim', 'veya web arayüzünü ayrı bir terminalde başlatın')}`);
-        console.log(`${c('dim', '    Sonra tarayıcıda açın:')} ${c('cyan', `http://localhost:${webPort}/result?url=${encodeURIComponent(url)}`)}\n`);
-    }
+    // Statik HTML rapor üret ve tarayıcıda aç (sunucu GEREKMEZ)
+    printSection('🌐 Raporu Tarayıcıda Görüntüle');
+    const html = generateHtmlReport({ url, scored, issues, crawlData, aiReport, elapsed });
+    const hostname = url.replace(/^https?:\/\//, '').replace(/[\/.:]/g, '_');
+    const htmlFile = openHtmlReport(html, `seo-raporu-${hostname}.html`);
+    console.log(`\n${c('dim', 'ℹ️  Rapor dosyası istediğiniz zaman yeniden açılabilir:')} ${c('cyan', htmlFile)}\n`);
 }
 
 // ─── ALT KOMUT: compare (rakip karşılaştırma) ───
