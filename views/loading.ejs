@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>SEO Analizi Yapılıyor... | SEO Optimizer</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <div class="loading-screen">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <h2>Kapsamlı SEO Taraması Yapılıyor</h2>
+            <p><strong><%= targetUrl %></strong> adresi derinlemesine inceleniyor.</p>
+            <% if (userEmail) { %>
+            <p class="small">Rapor <strong><%= userEmail %></strong> adresi için hazırlanıyor...</p>
+            <% } %>
+
+            <div class="loading-steps">
+                <div class="loading-step active" data-step="0">
+                    <span class="step-dot"></span>
+                    Sitemap keşfediliyor ve sayfalar listeleniyor...
+                </div>
+                <div class="loading-step" data-step="1">
+                    <span class="step-dot"></span>
+                    Tüm alt sayfalar paralel taranıyor...
+                </div>
+                <div class="loading-step" data-step="2">
+                    <span class="step-dot"></span>
+                    SEO puanları ve eksiklikler hesaplanıyor...
+                </div>
+                <div class="loading-step" data-step="3">
+                    <span class="step-dot"></span>
+                    Yapay zeka uzman raporu hazırlanıyor...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tarama ilerleme animasyonu
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.loading-step');
+        const interval = setInterval(() => {
+            if (currentStep < steps.length - 1) {
+                steps[currentStep].classList.remove('active');
+                steps[currentStep].classList.add('done');
+                currentStep++;
+                steps[currentStep].classList.add('active');
+            } else {
+                clearInterval(interval);
+            }
+        }, 3500);
+
+        // Sonuca yönlendir (tarama tamamlandığında)
+        setTimeout(() => {
+            window.location.href = '/result?url=' + encodeURIComponent('<%= targetUrl %>') + '&email=' + encodeURIComponent('<%= userEmail %>');
+        }, <%= redirectDelay %>);
+    </script>
+</body>
+</html>

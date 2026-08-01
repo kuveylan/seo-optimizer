@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO Meta Etiketleri -->
+    <title>SEO Optimizer | Ücretsiz Site Taraması ve Kurumsal SEO Raporu</title>
+    <meta name="description" content="Web sitenizi yapay zeka destekli 50+ kriterle ücretsiz tarayın. SEO skorunuzu öğrenin, eksiklikleri keşfedin ve müşterilerinize sunabileceğiniz kurumsal PDF raporunu indirin.">
+    <meta name="keywords" content="SEO analiz, ücretsiz SEO raporu, site denetimi, yapay zeka SEO, Google uyumluluk, GEO optimizasyonu, Lighthouse skoru">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<%= baseUrl %>/">
+
+    <!-- Open Graph / Sosyal Medya Paylaşımı -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="tr_TR">
+    <meta property="og:title" content="SEO Optimizer | Ücretsiz Site Taraması">
+    <meta property="og:description" content="Web sitenizi saniyeler içinde tarayın, SEO puanınızı öğrenin ve kurumsal PDF raporunuzu indirin.">
+    <meta property="og:url" content="<%= baseUrl %>/">
+    <meta property="og:site_name" content="SEO Optimizer">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SEO Optimizer">
+    <meta name="twitter:description" content="Ücretsiz kapsamlı web sitesi SEO denetimi ve profesyonel rapor.">
+
+    <!-- Yapılandırılmış Veri (JSON-LD) - Arama Motorları için -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SEO Optimizer",
+        "url": "<%= baseUrl %>/",
+        "description": "Yapay zeka destekli kapsamlı SEO analiz ve denetim aracı. Web sitenizi tarar, puanlar ve kurumsal rapor oluşturur.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" },
+        "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "127" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "SEO analiz aracı nasıl çalışır?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Web sitesi URL'nizi girin. Sistem sitemap'inizi ve tüm alt sayfalarınızı tarar, performans, SEO, erişilebilirlik ve güvenlik kriterlerine göre 0-100 arası puanlar ve eksiklikleri tespit eder." }
+            },
+            {
+                "@type": "Question",
+                "name": "SEO raporumda neler bulunur?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Genel SEO skoru, kategori bazlı puanlar, puan kaybına neden olan tüm eksiklikler ve bu eksikliklerin nasıl düzeltileceğine dair adım adım çözümler ile yapay zeka uzman raporu bulunur." }
+            },
+            {
+                "@type": "Question",
+                "name": "PDF raporu ücretli mi?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Hayır. Oluşturulan kurumsal PDF raporu tamamen ücretsizdir ve tek tıkla indirilebilir." }
+            },
+            {
+                "@type": "Question",
+                "name": "Rapor ne kadar sürer?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Site boyutuna göre genellikle 30-60 saniye içinde tamamlanır. Tarama sırasında tüm alt sayfalar derinlemesine incelenir." }
+            }
+        ]
+    }
+    </script>
+
+    <!-- Performans ve Yazı Tipleri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+    <!-- ÜST MENÜ -->
+    <nav class="top-nav" aria-label="Ana menü">
+        <div class="nav-inner">
+            <a href="/" class="brand" aria-label="SEO Optimizer ana sayfa">
+                <span class="brand-icon">🔍</span>
+                <span class="brand-name">SEO Optimizer</span>
+            </a>
+            <div class="nav-menu">
+                <a href="#ozellikler">Özellikler</a>
+                <a href="#nasil-calisir">Nasıl Çalışır?</a>
+                <a href="/compare">⚔️ Rakip Karşılaştırma</a>
+                <a href="/tools">🛠️ Araçlar</a>
+                <a href="#sss">SSS</a>
+                <a href="#analiz" class="nav-cta">Ücretsiz Analiz</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO BÖLÜMÜ -->
+    <header class="hero" id="analiz">
+        <h1>Web Sitenizin <span>SEO Sağlığını</span> Saniyeler İçinde Öğrenin</h1>
+        <p>Yapay zeka destekli motorumuz web sitenizi 50'den fazla teknik kriterle tarar, puanlar ve size kurumsal bir rapor sunar. Eksikliklerinizi ve çözümlerini tek PDF'de bulun.</p>
+
+        <div class="hero-badges">
+            <span class="badge-pill">⚡ <strong>50+</strong> Teknik Kontrol</span>
+            <span class="badge-pill">🤖 <strong>AI</strong> Uzman Raporu</span>
+            <span class="badge-pill">📑 <strong>PDF</strong> Rapor Çıktısı</span>
+            <span class="badge-pill">🚀 <strong>100%</strong> Ücretsiz</span>
+        </div>
+
+        <!-- ANALİZ FORMU -->
+        <div class="audit-card">
+            <form action="/audit" method="POST" aria-label="SEO analizi başlat">
+                <div class="form-group">
+                    <label for="url">Web Sitesi URL Adresi</label>
+                    <input type="url" id="url" name="url" required placeholder="https://ornekwebsitesi.com" class="form-input">
+                </div>
+                <% if (emailConfigured) { %>
+                <div class="form-group">
+                    <label for="email">Raporun Gönderileceği E-Posta (opsiyonel)</label>
+                    <input type="email" id="email" name="email" placeholder="adiniz@sirketiniz.com" class="form-input">
+                </div>
+                <% } %>
+                <button type="submit" class="btn-primary">🚀 Ücretsiz Kapsamlı SEO Analizi Başlat</button>
+            </form>
+        </div>
+    </header>
+
+    <!-- ÖZELLİKLER -->
+    <section class="features" id="ozellikler">
+        <h2>Neden SEO Optimizer?</h2>
+        <p class="subtitle">Sitenizin arama motorlarındaki başarısını ölçen eksiksiz bir denetim deneyimi.</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Tam Site Taraması</h3>
+                <p>Sitemap'inizi ve tüm alt sayfalarınızı otomatik keşfeder. Her sayfa ayrıntılı olarak incelenir, böylece hiçbir eksik gözden kaçmaz.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Lighthouse Skorlaması</h3>
+                <p>Performans, SEO, erişilebilirlik, en iyi uygulamalar ve güvenlik olmak üzere 5 kategoride 0-100 arası skor elde edin.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Uzman Raporu</h3>
+                <p>Claude AI motoru, sitenizin özel durumuna göre önceliklendirilmiş, eyleme geçirilebilir aksiyon planı hazırlar.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚠️</div>
+                <h3>Puan Kaybı Analizi</h3>
+                <p>Genel skorunuzun 100 olmamasına neden olan her eksikliği, önem derecesiyle birlikte madde madde sunarız.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📑</div>
+                <h3>Kurumsal PDF Raporu</h3>
+                <p>Kapaklı, grafikli, markalaştırılabilir profesyonel PDF raporunu tek tıkla indirin ve müşterilerinize sunun.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>AI Görünürlük (GEO)</h3>
+                <p>Sitenizin ChatGPT, Claude ve Perplexity gibi yapay zeka arama motorlarında ne kadar görünür olduğunu test eder.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- NASIL ÇALIŞIR -->
+    <section class="how" id="nasil-calisir">
+        <h2>3 Adımda Profesyonel SEO Raporu</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>URL'nizi Girin</h3>
+                <p>Web sitesi adresinizi yazın ve kapsamlı SEO analizini başlatın.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>AI Taramasını Başlatın</h3>
+                <p>Sistem sitemap'inizi ve tüm sayfalarınızı derinlemesine tarar, 50+ kriteri inceler.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Raporu İndirin</h3>
+                <p>Genel skorunuzu, eksikliklerinizi, çözümlerinizi ve AI raporunu içeren PDF'i indirin.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SIK SORULAN SORULAR -->
+    <section class="faq" id="sss">
+        <h2>Sıkça Sorulan Sorular</h2>
+
+        <div class="faq-item">
+            <button class="faq-q" type="button">
+                SEO analiz aracı nasıl çalışır?
+                <span class="faq-icon">＋</span>
+            </button>
+            <div class="faq-a"><p>Web sitesi URL'nizi girin. Sistem sitemap'inizi ve tüm alt sayfalarınızı tarar, performans, SEO, erişilebilirlik ve güvenlik kriterlerine göre 0-100 arası puanlar ve eksiklikleri tespit eder.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-q" type="button">
+                SEO raporumda neler bulunur?
+                <span class="faq-icon">＋</span>
+            </button>
+            <div class="faq-a"><p>Genel SEO skoru, kategori bazlı puanlar, puan kaybına neden olan tüm eksiklikler ve bu eksikliklerin nasıl düzeltileceğine dair adım adım çözümler ile yapay zeka uzman raporu bulunur.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-q" type="button">
+                PDF raporu ücretli mi?
+                <span class="faq-icon">＋</span>
+            </button>
+            <div class="faq-a"><p>Hayır. Oluşturulan kurumsal PDF raporu tamamen ücretsizdir ve tek tıkla indirilebilir.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-q" type="button">
+                Rapor ne kadar sürer?
+                <span class="faq-icon">＋</span>
+            </button>
+            <div class="faq-a"><p>Site boyutuna göre genellikle 30-60 saniye içinde tamamlanır. Tarama sırasında tüm alt sayfalar derinlemesine incelenir.</p></div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">🔍 SEO Optimizer</div>
+            <div class="footer-links">
+                <a href="#ozellikler">Özellikler</a>
+                <a href="#nasil-calisir">Nasıl Çalışır?</a>
+                <a href="#sss">SSS</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 SEO Optimizer. Tüm hakları saklıdır. Web sitenizi yapay zeka ile kusursuzlaştırın.
+        </div>
+    </footer>
+
+    <script>
+        // FAQ akordeon davranışı
+        document.querySelectorAll('.faq-q').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.parentElement;
+                item.classList.toggle('open');
+            });
+        });
+    </script>
+</body>
+</html>

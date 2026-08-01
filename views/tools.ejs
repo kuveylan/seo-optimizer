@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ücretsiz SEO Araç Kutusu | SEO Optimizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <a href="/" class="brand"><span class="brand-icon">🔍</span><span class="brand-name">SEO Optimizer</span></a>
+            <div class="nav-menu">
+                <a href="/compare">⚔️ Rakip Karşılaştırma</a>
+                <a href="/tools" class="nav-cta">🛠️ Araçlar</a>
+                <a href="/">Ana Sayfa</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="result-page">
+        <div class="result-container">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h1 style="font-size: 36px; font-weight: 900; color: var(--slate-900); margin-bottom: 8px;">🛠️ Ücretsiz SEO Araç Kutusu</h1>
+                <p style="color: var(--slate-500); font-size: 17px;">Raporunuzda tespit edilen eksiklikleri doğrudan düzeltmek için gerekli dosyaları saniyeler içinde üretin.</p>
+            </div>
+
+            <!-- Araç Seçim Sekmeleri -->
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px;" id="tool-tabs">
+                <button onclick="showTool('sitemap')" data-tool="sitemap" class="tool-tab" style="background: var(--indigo-600); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer;">🗺️ Sitemap Üretici</button>
+                <button onclick="showTool('robots')" data-tool="robots" class="tool-tab" style="background: var(--slate-100); border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; color: var(--slate-600);">🤖 robots.txt</button>
+                <button onclick="showTool('meta')" data-tool="meta" class="tool-tab" style="background: var(--slate-100); border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; color: var(--slate-600);">🏷️ Meta Etiket</button>
+                <button onclick="showTool('htaccess')" data-tool="htaccess" class="tool-tab" style="background: var(--slate-100); border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; color: var(--slate-600);">🔒 .htaccess</button>
+            </div>
+
+            <!-- Sitemap Formu -->
+            <div class="audit-card tool-form" data-form="sitemap" style="max-width: 760px;">
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">🗺️ XML Sitemap Üretici</h2>
+                <p style="color: var(--slate-500); font-size: 14px; margin-bottom: 20px;">Sitenizin tüm sayfaları için arama motorlarının anlayacağı bir sitemap.xml dosyası oluşturun.</p>
+                <form action="/tools" method="POST">
+                    <input type="hidden" name="type" value="sitemap">
+                    <div class="form-group">
+                        <label for="baseUrl">Site URL (Base)</label>
+                        <input type="url" id="baseUrl" name="baseUrl" placeholder="https://ornek.com" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="urls">Sayfa URL'leri (Her satıra bir URL)</label>
+                        <textarea id="urls" name="urls" rows="8" class="form-input" style="resize: vertical;" placeholder="https://ornek.com/&#10;https://ornek.com/hakkimizda&#10;https://ornek.com/iletisim"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">🗺️ Sitemap Oluştur</button>
+                </form>
+            </div>
+
+            <!-- Robots Formu -->
+            <div class="audit-card tool-form" data-form="robots" style="max-width: 760px; display: none;">
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">🤖 robots.txt Üretici</h2>
+                <p style="color: var(--slate-500); font-size: 14px; margin-bottom: 20px;">Arama motorlarına ve AI botlarına site erişim kurallarınızı belirleyen robots.txt oluşturun.</p>
+                <form action="/tools" method="POST">
+                    <input type="hidden" name="type" value="robots">
+                    <div class="form-group">
+                        <label for="baseUrl2">Site URL</label>
+                        <input type="url" id="baseUrl2" name="baseUrl" placeholder="https://ornek.com" class="form-input">
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 14px; font-weight: 500;">
+                        <input type="checkbox" name="blockAiBots"> AI botlarını engelle (GPTBot, ClaudeBot, PerplexityBot)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500;">
+                        <input type="checkbox" name="allowAllBots"> Tüm botlara tam erişim izni ver
+                    </label>
+                    <button type="submit" class="btn-primary">🤖 robots.txt Oluştur</button>
+                </form>
+            </div>
+
+            <!-- Meta Formu -->
+            <div class="audit-card tool-form" data-form="meta" style="max-width: 760px; display: none;">
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">🏷️ Meta Etiket Üretici</h2>
+                <p style="color: var(--slate-500); font-size: 14px; margin-bottom: 20px;">SEO uyumlu Title, Description ve Open Graph etiketlerinizi tek seferde oluşturun.</p>
+                <form action="/tools" method="POST">
+                    <input type="hidden" name="type" value="meta">
+                    <div class="form-group">
+                        <label for="title">Title (Başlık) — 50-60 karakter önerilir</label>
+                        <input type="text" id="title" name="title" maxlength="70" placeholder="Anahtar Kelime | Marka Adı" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Meta Description — 120-155 karakter önerilir</label>
+                        <textarea id="description" name="description" rows="3" maxlength="200" class="form-input" placeholder="Sayfanızın kısa ve açıklayıcı özeti..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="siteName2">Site / Marka Adı</label>
+                        <input type="text" id="siteName2" name="siteName" placeholder="Örnek Marka" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="ogImage">Sosyal Medya Görseli URL (opsiyonel)</label>
+                        <input type="url" id="ogImage" name="ogImage" placeholder="https://ornek.com/gorsel.jpg" class="form-input">
+                    </div>
+                    <button type="submit" class="btn-primary">🏷️ Meta Etiket Oluştur</button>
+                </form>
+            </div>
+
+            <!-- Htaccess Formu -->
+            <div class="audit-card tool-form" data-form="htaccess" style="max-width: 760px; display: none;">
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">🔒 .htaccess Güvenlik & Hız Üretici</h2>
+                <p style="color: var(--slate-500); font-size: 14px; margin-bottom: 20px;">HTTPS yönlendirme, Gzip sıkıştırma ve güvenlik başlıklarını içeren .htaccess oluşturun.</p>
+                <form action="/tools" method="POST">
+                    <input type="hidden" name="type" value="htaccess">
+                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 14px; font-weight: 500;">
+                        <input type="checkbox" name="httpsRedirect" checked> HTTP → HTTPS yönlendirme (301)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 14px; font-weight: 500;">
+                        <input type="checkbox" name="gzip" checked> Gzip sıkıştırma
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500;">
+                        <input type="checkbox" name="securityHeaders" checked> Güvenlik başlıkları (CSP, HSTS, X-Frame)
+                    </label>
+                    <button type="submit" class="btn-primary">🔒 .htaccess Oluştur</button>
+                </form>
+            </div>
+
+            <!-- Üretilen Çıktı -->
+            <% if (generated) { %>
+            <div class="card" style="background: white; border-radius: 16px; padding: 32px; border: 1px solid var(--slate-200); margin-bottom: 40px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                    <h2 style="font-size: 20px; font-weight: 800; margin: 0;">✅ Oluşturulan Çıktı</h2>
+                    <form action="/tools/download" method="POST" style="margin: 0;">
+                        <input type="hidden" name="content" value="<%= generated %>">
+                        <input type="hidden" name="type" value="<%= type %>">
+                        <button type="submit" class="btn-download" style="padding: 10px 20px; font-size: 14px;">⬇️ Dosyayı İndir</button>
+                    </form>
+                </div>
+                <pre style="background: #0f172a; color: #e2e8f0; padding: 20px; border-radius: 12px; font-size: 13px; overflow-x: auto; max-height: 400px; font-family: 'Courier New', monospace;"><%= generated %></pre>
+            </div>
+            <% } %>
+
+            <% if (error) { %>
+            <div style="background: var(--red-100); color: var(--red-700); padding: 16px; border-radius: 10px; font-size: 14px; margin-bottom: 32px;"><%= error %></div>
+            <% } %>
+        </div>
+    </main>
+
+    <script>
+        function showTool(tool) {
+            document.querySelectorAll('.tool-form').forEach(f => f.style.display = 'none');
+            document.querySelectorAll('.tool-tab').forEach(b => {
+                b.style.background = 'var(--slate-100)';
+                b.style.color = 'var(--slate-600)';
+            });
+            const form = document.querySelector(`.tool-form[data-form="${tool}"]`);
+            if (form) form.style.display = 'block';
+            const tab = document.querySelector(`.tool-tab[data-tool="${tool}"]`);
+            if (tab) { tab.style.background = 'var(--indigo-600)'; tab.style.color = 'white'; }
+        }
+        // URL parametresiyle araç açılsın
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('tool')) showTool(params.get('tool'));
+    </script>
+</body>
+</html>

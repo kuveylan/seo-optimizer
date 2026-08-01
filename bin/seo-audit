@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+/**
+ * SEO Optimizer — © 2026 kuveylan
+ * MIT License — Özgün çalışma.
+ *
+ * Global komut girişi: `seo-audit`
+ * Gerçek uygulama: ./seo-audit.js
+ */
+require('./seo-audit.js');
