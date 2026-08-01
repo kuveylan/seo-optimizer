@@ -1,0 +1,12 @@
+# Docker image'ına girmeyecekler (güvenlik + boyut)
+node_modules
+.private
+.env
+githup_repolari
+ATTRIBUTIONS
+fetch_repos.js
+.git
+.gitignore
+seo-raporu-*.html
+*.tgz
+DEV_LOG.md

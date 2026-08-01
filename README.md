@@ -383,6 +383,45 @@ Kod, **MIT Lisansı** altında yayınlanmaktadır.
 
 ---
 
+## 🐳 Docker ile Canlıya Alma
+
+Proje, web arayüzünü ve CLI'ı tek container'da çalıştıran hazır bir Dockerfile içerir (Puppeteer/Chromium dahil).
+
+### Yerel test
+
+```bash
+docker compose up -d          # web arayüzü → http://localhost:3000
+docker compose exec app seo-audit audit https://example.com   # CLI
+```
+
+### VPS'e deploy (DigitalOcean / Hetzner / AWS EC2)
+
+```bash
+# VPS'e bağlan, repoyu çek
+git clone https://github.com/kuveylan/seo-optimizer.git
+cd seo-optimizer
+
+# Image'ı build et ve çalıştır
+docker build -t seo-optimizer .
+docker run -d --name seo-optimizer -p 80:3000 \
+  -e ANTHROPIC_API_KEY="sk-..." \        # AI raporu için (opsiyonel)
+  -e AI_API_URL="http://localhost:20128/v1" \
+  --restart unless-stopped \
+  seo-optimizer
+```
+
+Artık `http://VPS_IP_ADRESI` adresinde web arayüzü açılır.
+
+### Alan adı + HTTPS (Cloudflare)
+
+1. Alan adını Cloudflare DNS'e ekle, VPS IP'sine A kaydı oluştur.
+2. Cloudflare **Proxy** modunu aç (turuncu bulut) → ücretsiz HTTPS.
+3. Web arayüzü `https://senin-domainin.com` adresinde yayında.
+
+> 💡 AI raporu için 9routers gibi bir lokal proxy kullanıyorsanız, proxy'yi de aynı VPS'te ayrı bir container olarak çalıştırıp `AI_API_URL`'i buna bağlayın.
+
+---
+
 ## 🛠️ Teknoloji Yığını
 
 - **Node.js / Express** — Web sunucusu
@@ -392,6 +431,7 @@ Kod, **MIT Lisansı** altında yayınlanmaktadır.
 - **EJS** — Şablon motoru
 - **Claude API** — AI uzman raporu
 - **Nodemailer** — E-posta gönderimi
+- **Docker** — Konteynerleştirme (opsiyonel)
 
 ---
 

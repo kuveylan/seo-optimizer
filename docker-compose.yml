@@ -1,0 +1,21 @@
+# SEO Optimizer — docker-compose (© 2026 kuveylan, MIT)
+# Kullanım:
+#   docker compose up -d          # web arayüzünü başlat → http://localhost:3000
+#   docker compose exec app seo-audit audit https://example.com   # CLI
+services:
+  app:
+    build: .
+    container_name: seo-optimizer
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      # AI raporu için (opsiyonel) — host'un .env'inden gelebilir:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - AI_API_URL=${AI_API_URL:-}
+      - AI_MODEL=${AI_MODEL:-}
+      - AI_PROVIDER=${AI_PROVIDER:-}
+    volumes:
+      # Geliştirici rahatlığı: host'taki .private/.env okunur
+      - ./public:/app/public:ro
+    restart: unless-stopped
