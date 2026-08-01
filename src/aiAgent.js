@@ -14,11 +14,21 @@ if (fs.existsSync(localEnv)) {
 }
 
 async function analyzeWithAI(seoData, apiKey) {
-    const ANTHROPIC_API_KEY = apiKey || process.env.ANTHROPIC_API_KEY;
+    // ─── Sağlayıcı tespiti ───
+    // AI_PROVIDER: 'anthropic' | 'openrouter' | '9routers' (boşsa otomatik algılanır)
+    // Öncelik sırası: AI_PROVIDER → sk-or- anahtar (OpenRouter) → localhost URL (9routers) → Anthropic
+    // Export değişkenleri (LLM_*) .env'deki (AI_*) değerlerinden önceliklidir — Strix tarzı export desteği
+    const provider = (process.env.AI_PROVIDER || '').toLowerCase();
+    const ANTHROPIC_API_KEY = apiKey || process.env.LLM_API_KEY || process.env.ANTHROPIC_API_KEY || '';
+    // LLM_API_BASE export'u açıkça verildiyse onu kullan, yoksa AI_API_URL (.env)
+    const AI_API_URL = process.env.LLM_API_BASE || process.env.AI_API_URL || '';
+    const isOpenRouterKey = ANTHROPIC_API_KEY.startsWith('sk-or-');
+    const isLocalProxy = /localhost|127\.0\.0\.1|9routers/i.test(AI_API_URL) && !isOpenRouterKey;
+    const useProvider = provider || (isOpenRouterKey ? 'openrouter' : (isLocalProxy ? '9routers' : 'anthropic'));
 
     if (!ANTHROPIC_API_KEY) {
-        console.error('⚠️  ANTHROPIC_API_KEY bulunamadı.');
-        return 'Hata: ANTHROPIC_API_KEY tanımlı değil.';
+        console.error('⚠️  API anahtarı bulunamadı (ANTHROPIC_API_KEY / LLM_API_KEY).');
+        return 'Hata: API anahtarı tanımlı değil. `seo-audit config` ile ayarlayın.';
     }
 
     const prompt = `
@@ -82,35 +92,73 @@ Her aksiyon için şu formatta bir tablo/liste ver:
 
 En yüksek etkili 5 aksiyonu öncelik sırasına göre ver. Teknik bilgisi olmayan bir site sahibinin anlayabileceği dil kullan. Raporu markdown formatında, başlıklar ve listeler kullanarak profesyonel ve okunaklı yaz.`;
 
-    let apiUrl = process.env.AI_API_URL || 'https://api.anthropic.com/v1/messages';
-    const apiModel = process.env.AI_MODEL || 'claude-sonnet-4-5';
+    // STRIX_LLM (export) her zaman önceliklidir: "openrouter/openrouter/free" → son parça model
+    const strixModel = process.env.STRIX_LLM || '';
+    let apiModel = strixModel ? strixModel.split('/').pop() : (process.env.AI_MODEL || 'claude-sonnet-4-5');
 
-    // 9routers gibi proxy'ler için URL normalizasyonu:
-    // .env'de "http://localhost:20128/v1" yazılırsa otomatik "/messages" eklenir.
-    if (!apiUrl.endsWith('/messages') && !apiUrl.endsWith('/chat/completions')) {
-        apiUrl = apiUrl.replace(/\/+$/, '') + '/messages';
+    // ─── Endpoint ve başlıklar (sağlayıcıya göre) ───
+    let apiUrl;
+    let headers;
+    let body;
+
+    if (useProvider === 'openrouter') {
+        // OpenRouter: Bearer auth + /api/v1/chat/completions (OpenAI formatı)
+        apiUrl = AI_API_URL || 'https://openrouter.ai/api/v1/chat/completions';
+        if (!apiUrl.includes('chat/completions')) {
+            apiUrl = apiUrl.replace(/\/+$/, '') + (apiUrl.includes('/api/v1') ? '/chat/completions' : '/api/v1/chat/completions');
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${ANTHROPIC_API_KEY}`,
+            'HTTP-Referer': 'https://github.com/kuveylan/seo-optimizer',
+            'X-Title': 'SEO Optimizer'
+        };
+        body = {
+            model: apiModel,
+            max_tokens: 2000,
+            messages: [{ role: 'user', content: prompt }]
+        };
+    } else if (useProvider === '9routers') {
+        // 9routers lokal proxy: Anthropic uyumlu x-api-key + /messages
+        apiUrl = AI_API_URL || 'http://localhost:20128/v1/messages';
+        if (!apiUrl.endsWith('/messages') && !apiUrl.endsWith('/chat/completions')) {
+            apiUrl = apiUrl.replace(/\/+$/, '') + '/messages';
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'x-api-key': ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01'
+        };
+        body = {
+            model: apiModel,
+            max_tokens: 2000,
+            messages: [{ role: 'user', content: prompt }]
+        };
+    } else {
+        // Anthropic resmi API
+        apiUrl = AI_API_URL || 'https://api.anthropic.com/v1/messages';
+        if (!apiUrl.endsWith('/messages') && !apiUrl.endsWith('/chat/completions')) {
+            apiUrl = apiUrl.replace(/\/+$/, '') + '/messages';
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'x-api-key': ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01'
+        };
+        body = {
+            model: apiModel,
+            max_tokens: 2000,
+            messages: [{ role: 'user', content: prompt }]
+        };
     }
 
-    console.log(`🤖 AI Servisine İstek Gönderiliyor -> URL: ${apiUrl} | Model: ${apiModel}`);
+    console.log(`🤖 AI Servisine İstek Gönderiliyor -> ${useProvider.toUpperCase()} | URL: ${apiUrl} | Model: ${apiModel}`);
 
     try {
         const response = await fetch(apiUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': ANTHROPIC_API_KEY,
-                'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify({
-                model: apiModel,
-                max_tokens: 2000,
-                messages: [
-                    {
-                        role: 'user',
-                        content: prompt
-                    }
-                ]
-            })
+            headers,
+            body: JSON.stringify(body)
         });
 
         const responseText = await response.text();

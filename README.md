@@ -121,13 +121,54 @@ AI uzman raporunu üretmek için bir API anahtarı gerekir. Kurulumdan sonra tek
 seo-audit config
 ```
 
-`config` sırayla sorar:
-1. **ANTHROPIC_API_KEY** — Claude anahtarı (`https://console.anthropic.com/settings/keys`)
-2. **AI_API_URL** — 9routers gibi bir proxy kullanıyorsanız (örn. `http://localhost:20128/v1`), yoksa boş bırakın
-3. **AI_MODEL** — model adı (boş = `claude-sonnet-4-5`)
+`config` önce **sağlayıcıyı** sorar, sonra ona uygun alanları ister:
 
-> **Alternatif:** Aynı anahtarları proje içinde `.private/.env` dosyasına da yazabilirsiniz. `~/.seo-audit.env` ve `.private/.env` ikisi de okunur.
->
+| # | Sağlayıcı | Anahtar formatı | Model örneği |
+|---|---|---|---|
+| 1 | **Anthropic Claude** (resmi API) | `sk-ant-...` | `claude-sonnet-4-5` |
+| 2 | **9routers** (lokal proxy) | herhangi | `mycombo` |
+| 3 | **OpenRouter** | `sk-or-v1-...` | `openrouter/openrouter/free` |
+
+### Sağlayıcıya göre ortam değişkenleri
+
+`config` bunları otomatik yazar; isterseniz elle de ayarlayabilirsiniz (`~/.seo-audit.env` veya `.private/.env`):
+
+```bash
+# ── Seçenek 1: Anthropic ──
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-...
+
+# ── Seçenek 2: 9routers (lokal proxy) ──
+AI_PROVIDER=9routers
+ANTHROPIC_API_KEY=proxy-anahtari
+AI_API_URL=http://localhost:20128/v1
+AI_MODEL=mycombo
+
+# ── Seçenek 3: OpenRouter ──
+AI_PROVIDER=openrouter
+ANTHROPIC_API_KEY=sk-or-v1-...
+AI_API_URL=https://openrouter.ai/api/v1
+AI_MODEL=openrouter/openrouter/free
+```
+
+> 💡 **Otomatik algılama:** `AI_PROVIDER` boşsa, anahtar `sk-or-` ile başlıyorsa **OpenRouter**, URL `localhost`/`127.0.0.1` içeriyorsa **9routers**, değilse **Anthropic** seçilir.
+
+### Terminal export ile (Strix tarzı)
+
+Kullanıcının kendi ortamında çalıştırmak istiyorsa `export` komutlarıyla da verebilir:
+
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."          # Anthropic
+# veya
+export LLM_API_KEY="sk-or-v1-..."              # OpenRouter
+export LLM_API_BASE="https://openrouter.ai/api/v1"
+export STRIX_LLM="openrouter/openrouter/free"  # sağlayıcı/model
+
+seo-audit audit https://example.com
+```
+
+> Export değerleri (`LLM_*`, `STRIX_LLM`) `.env` dosyasındakilerden önceliklidir.
+
 > 💡 Anahtar girmezseniz denetim yine çalışır — yalnızca AI raporu bölümü atlanır.
 
 ### Kullanım İpuçları
@@ -232,9 +273,13 @@ node src/test-scraper.js
 
 | Değişken | Açıklama | Zorunlu |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Claude API anahtarı (AI raporu için) | Hayır* |
-| `AI_API_URL` | 9routers gibi proxy URL'si | Hayır* |
+| `AI_PROVIDER` | Sağlayıcı: `anthropic` / `9routers` / `openrouter` (boşsa otomatik algılanır) | Hayır |
+| `ANTHROPIC_API_KEY` | API anahtarı (Anthropic `sk-ant-`, OpenRouter `sk-or-`) | Hayır* |
+| `AI_API_URL` | 9routers gibi proxy URL'si veya OpenRouter base | Hayır* |
 | `AI_MODEL` | Kullanılacak AI modeli | Hayır |
+| `LLM_API_KEY` | Export alternatifi (OpenRouter `sk-or-`) | Hayır* |
+| `LLM_API_BASE` | Export alternatifi (OpenRouter base URL) | Hayır* |
+| `STRIX_LLM` | Export alternatifi (`sağlayıcı/model` formatında) | Hayır* |
 | `SMTP_HOST` | E-posta gönderimi için SMTP sunucusu | Hayır |
 | `SMTP_PORT` | SMTP portu (varsayılan 587) | Hayır |
 | `SMTP_USER` | SMTP kullanıcı adı | Hayır |
@@ -243,6 +288,7 @@ node src/test-scraper.js
 
 *AI raporu yoksa sistem teknik skorlamayla çalışmaya devam eder.
 *SMTP (e-posta) yapılandırılmazsa e-posta alanları gizlenir, sistem sorunsuz çalışır.
+*`config` komutu bu değerleri `~/.seo-audit.env`'e otomatik yazar.
 
 ---
 
@@ -254,10 +300,13 @@ SEO Optimizer, AI uzman raporunu **birden fazla model ve servisle** üretebilir.
 
 | Servis | Nasıl çalışır | `.env` ayarı |
 |---|---|---|
-| **Anthropic Claude** (resmi API) | `/v1/messages` uç noktası, `x-api-key` başlığı | `ANTHROPIC_API_KEY=sk-ant-...` |
-| **9routers / lokal proxy** | Localhost üzerinde çalışan proxy'ye istek atar, Anthropic formatında | `AI_API_URL=http://localhost:20128/v1` |
+| **Anthropic Claude** (resmi API) | `/v1/messages` uç noktası, `x-api-key` başlığı | `AI_PROVIDER=anthropic` + `ANTHROPIC_API_KEY=sk-ant-...` |
+| **9routers / lokal proxy** | Localhost üzerinde çalışan proxy'ye istek atar, Anthropic formatında | `AI_PROVIDER=9routers` + `AI_API_URL=http://localhost:20128/v1` |
+| **OpenRouter** | Bearer auth + `/chat/completions`, yüzlerce model | `AI_PROVIDER=openrouter` + `ANTHROPIC_API_KEY=sk-or-...` |
 | **OpenAI uyumlu API'ler** | `/chat/completions` formatında yanıtları otomatik tanır | `AI_API_URL=https://.../v1` |
 | **SSE streaming destekleyenler** | Cloudflare Workers AI vb. streaming yanıtları otomatik ayrıştırılır | `AI_API_URL` ile birlikte |
+
+> Sağlayıcı **otomatik algılanır**: `AI_PROVIDER` boşsa, anahtar `sk-or-` ile başlıyorsa OpenRouter, URL `localhost` içeriyorsa 9routers, değilse Anthropic seçilir.
 
 ### Desteklenen model örnekleri (AI_MODEL)
 
@@ -269,10 +318,14 @@ AI_MODEL=claude-opus-4              # en yetenekli (ağır analiz)
 # 9routers / proxy üzerinden gelen modeller
 AI_MODEL=mycombo                    # 9routers kombo modeli
 AI_MODEL=gpt-4o                     # OpenAI modeli (proxy üzerinden)
-AI_MODEL=claude-sonnet-4-5          # Claude (proxy üzerinden)
+
+# OpenRouter (sk-or- anahtarı gerektirir)
+AI_MODEL=openrouter/openrouter/free # ücretsiz model
+AI_MODEL=openrouter/auto            # otomatik seçim
+AI_MODEL=anthropic/claude-3.5-sonnet
 ```
 
-> 💡 **İpucu:** Doğrudan Anthropic API'si kullanacaksanız yalnızca `ANTHROPIC_API_KEY` yeterlidir. 9routers gibi bir proxy kullanıyorsanız `AI_API_URL` + `AI_MODEL` ayarlayın; anahtar aynı `.env`'de durur.
+> 💡 **İpucu:** Doğrudan Anthropic API'si kullanacaksanız yalnızca `ANTHROPIC_API_KEY` yeterlidir. 9routers gibi bir proxy kullanıyorsanız `AI_API_URL` + `AI_MODEL`; OpenRouter için `sk-or-` anahtarı + model adı yeterli. Hepsi `seo-audit config` ile kolayca ayarlanır.
 
 ### Model nasıl seçilir?
 

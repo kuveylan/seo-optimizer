@@ -273,7 +273,7 @@ async function configCommand() {
     const ask = createPrompter();
     console.log(banner);
     printSection('🔑 AI Raporu Yapılandırması');
-    console.log(c('dim', 'AI uzman raporu için bir yapay zeka API anahtarı girin.'));
+    console.log(c('dim', 'AI uzman raporu için hangi yapay zeka servisini kullanacağınızı seçin.'));
     console.log(c('dim', 'Anahtarlar güvenli şekilde ev dizininizde saklanır: ' + CONFIG_PATH + '\n'));
 
     // Mevcut yapılandırmayı göster
@@ -281,22 +281,47 @@ async function configCommand() {
     const existingKey = (existing.match(/ANTHROPIC_API_KEY=(.+)/) || [])[1] || '';
     const existingUrl = (existing.match(/AI_API_URL=(.+)/) || [])[1] || '';
     const existingModel = (existing.match(/AI_MODEL=(.+)/) || [])[1] || '';
+    const existingProvider = (existing.match(/AI_PROVIDER=(.+)/) || [])[1] || '';
 
-    console.log(c('bold', 'Seçenek 1: Claude (Anthropic resmi API)'));
-    console.log(c('dim', '  Anahtar: https://console.anthropic.com/settings/keys'));
-    console.log(c('bold', 'Seçenek 2: 9routers gibi bir lokal proxy'));
-    console.log(c('dim', '  AI_API_URL + AI_MODEL + (proxy anahtarı)\n'));
+    // ─── Sağlayıcı seçimi ───
+    console.log(c('bold', 'Hangi AI servisini kullanıyorsunuz?'));
+    console.log(`  ${c('cyan', '1')}  ${c('bold', 'Anthropic Claude')}  ${c('dim', '(resmi API, sk-ant-... ile başlar)')}`);
+    console.log(`  ${c('cyan', '2')}  ${c('bold', '9routers')}  ${c('dim', '(lokal proxy, http://localhost:20128)')}`);
+    console.log(`  ${c('cyan', '3')}  ${c('bold', 'OpenRouter')}  ${c('dim', '(sk-or-v1-... ile başlar)')}`);
+    console.log('');
+    const providerChoice = await ask(c('cyan', 'Seçiminiz (1/2/3)') + c('dim', (existingProvider ? ` [mevcut: ${existingProvider}]` : ' [1]') + ': '));
+    let provider = providerChoice === '2' ? '9routers' : providerChoice === '3' ? 'openrouter' : providerChoice === '1' ? 'anthropic' : existingProvider || 'anthropic';
 
-    let apiKey = await ask(c('cyan', 'ANTHROPIC_API_KEY girin') + c('dim', (existingKey ? ` [mevcut: ${existingKey.slice(0, 8)}...]` : ' (boş bırakılırsa değişmez)') + ': '));
-    let apiUrl = await ask(c('cyan', 'AI_API_URL girin') + c('dim', ' (proxy varsa, ör. http://localhost:20128/v1, boş = Claude API)') + c('dim', existingUrl ? ` [mevcut: ${existingUrl}]` : '') + ': ');
-    let apiModel = await ask(c('cyan', 'AI_MODEL girin') + c('dim', existingModel ? ` [mevcut: ${existingModel}]` : ' (boş = claude-sonnet-4-5)') + ': ');
+    console.log('');
+    if (provider === 'openrouter') {
+        console.log(c('bold', 'OpenRouter ayarları'));
+        console.log(c('dim', '  Anahtar: https://openrouter.ai/settings/keys'));
+        console.log(c('dim', '  Model örnekleri: openrouter/openrouter/free, openrouter/auto\n'));
+    } else if (provider === '9routers') {
+        console.log(c('bold', '9routers (lokal proxy) ayarları'));
+        console.log(c('dim', '  Genelde anahtar ve localhost URL otomatik çalışır\n'));
+    } else {
+        console.log(c('bold', 'Anthropic Claude ayarları'));
+        console.log(c('dim', '  Anahtar: https://console.anthropic.com/settings/keys\n'));
+    }
 
-    // Boş bırakılanları mevcut değerlerle koru
+    const keyPrompt = provider === 'openrouter'
+        ? 'OpenRouter API anahtarı (sk-or-v1-...)'
+        : 'API anahtarı';
+    const urlDefault = provider === 'openrouter' ? 'https://openrouter.ai/api/v1' : 'http://localhost:20128/v1';
+    const modelDefault = provider === '9routers' ? 'mycombo' : provider === 'openrouter' ? 'openrouter/openrouter/free' : 'claude-sonnet-4-5';
+
+    let apiKey = await ask(c('cyan', keyPrompt + ' girin') + c('dim', (existingKey ? ` [mevcut: ${existingKey.slice(0, 8)}...]` : ' (boş bırakılırsa değişmez)') + ': '));
+    let apiUrl = await ask(c('cyan', 'AI_API_URL girin') + c('dim', ` [varsayılan: ${urlDefault}]`) + c('dim', existingUrl ? ` [mevcut: ${existingUrl}]` : '') + ': ');
+    let apiModel = await ask(c('cyan', 'AI_MODEL girin') + c('dim', ` [varsayılan: ${modelDefault}]`) + c('dim', existingModel ? ` [mevcut: ${existingModel}]` : '') + ': ');
+
+    // Boş bırakılanları mevcut / varsayılan değerlerle doldur
     apiKey = apiKey || existingKey;
-    apiUrl = apiUrl || existingUrl;
-    apiModel = apiModel || existingModel || 'claude-sonnet-4-5';
+    apiUrl = apiUrl || existingUrl || (provider === 'anthropic' ? '' : urlDefault);
+    apiModel = apiModel || existingModel || modelDefault;
 
     const lines = [
+        `AI_PROVIDER=${provider}`,
         `ANTHROPIC_API_KEY=${apiKey}`,
         apiUrl ? `AI_API_URL=${apiUrl}` : '# AI_API_URL=',
         `AI_MODEL=${apiModel}`
@@ -305,6 +330,7 @@ async function configCommand() {
 
     console.log('');
     console.log(c('green', '✔ Yapılandırma kaydedildi: ') + c('bold', CONFIG_PATH));
+    console.log(c('dim', `  Sağlayıcı: ${provider} | Model: ${apiModel}`));
     console.log(c('dim', 'Artık AI raporu üretilebilir. Deneyin:'));
     console.log(c('cyan', '  seo-audit audit https://example.com'));
     process.exitCode = 0;
