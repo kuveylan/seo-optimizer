@@ -10,17 +10,22 @@
  *   seo-audit compare https://a.com https://b.com  # Rakip karşılaştırma
  *   seo-audit sitemap https://example.com          # XML sitemap üret
  */
-// .env'yi birkaç konumda ara (lokal çalıştırma + global kurulum + mevcut dizin)
+// .env'yi birkaç konumda ara (repo içi + ev dizini + çalışılan dizin)
 const path = require('path');
+const os = require('os');
 const fs = require('fs');
 const envCandidates = [
-    path.join(__dirname, '..', '.private', '.env'),   // repo içi
-    path.join(process.cwd(), '.private', '.env'),     // çalışılan dizin
-    path.join(process.cwd(), '.env')                  // çalışılan dizindeki .env
+    path.join(__dirname, '..', '.private', '.env'),    // repo içi
+    path.join(os.homedir(), '.seo-audit.env'),         // global: `seo-audit config` ile oluşur
+    path.join(process.cwd(), '.private', '.env'),      // çalışılan dizin
+    path.join(process.cwd(), '.env')                   // çalışılan dizindeki .env
 ];
 for (const p of envCandidates) {
     if (fs.existsSync(p)) { require('dotenv').config({ path: p }); break; }
 }
+
+// Yüklendikten sonra kullanıcıya anahtar durumunu özetle
+const hasAIKey = process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY !== 'your_api_key_here';
 
 const { crawlSite } = require('../src/siteCrawler');
 const { scoreSite } = require('../src/scoreEngine');
@@ -165,9 +170,10 @@ async function audit(url, options = {}) {
         }
     } else {
         printSection('🤖 Yapay Zeka Uzman Raporu');
-        console.log(c('yellow', '  ⚠️ AI raporu için ANTHROPIC_API_KEY tanımlı değil.'));
-        console.log(c('dim', '  Teknik skorlama tamamlandı. AI raporu istiyorsanız:'));
-        console.log(c('dim', '    export ANTHROPIC_API_KEY="sk-ant-..."  →  seo-audit audit <URL>'));
+        console.log(c('yellow', '  ⚠️ AI raporu için API anahtarı tanımlı değil.'));
+        console.log(c('dim', '  Teknik skorlama tamamlandı. AI raporu istiyorsanız tek komut:'));
+        console.log(c('cyan', '    seo-audit config'));
+        console.log(c('dim', '  → AI anahtarınızı girin, sonra tekrar: seo-audit audit <URL>'));
     }
 
     // PDF
@@ -193,8 +199,22 @@ async function audit(url, options = {}) {
     }
 
     console.log(`\n${c('green', '✔ Denetim tamamlandı.')} ${c('dim', `(${formatMs(Date.now() - started)})`)}`);
+
+    // Web arayüzü çalışıyorsa bağlantı göster, çalışmıyorsa nasıl başlatılacağını söyle
     const webPort = process.env.PORT || 3000;
-    console.log(`${c('dim', '📊 Web arayüzü ile detaylı rapor:')} ${c('cyan', `http://localhost:${webPort}/result?url=${encodeURIComponent(url)}`)}\n`);
+    const net = require('net');
+    const isWebUp = await new Promise((resolve) => {
+        const sock = net.connect(webPort, '127.0.0.1');
+        sock.once('connect', () => { sock.destroy(); resolve(true); });
+        sock.once('error', () => resolve(false));
+    });
+    if (isWebUp) {
+        console.log(`${c('dim', '📊 Web arayüzü ile detaylı rapor:')} ${c('cyan', `http://localhost:${webPort}/result?url=${encodeURIComponent(url)}`)}\n`);
+    } else {
+        console.log(`${c('dim', '📊 Web arayüzü şu an çalışmıyor. Çalıştırmak için:')}`);
+        console.log(`${c('cyan', '    npm start')}   ${c('dim', 'veya web arayüzünü ayrı bir terminalde başlatın')}`);
+        console.log(`${c('dim', '    Sonra tarayıcıda açın:')} ${c('cyan', `http://localhost:${webPort}/result?url=${encodeURIComponent(url)}`)}\n`);
+    }
 }
 
 // ─── ALT KOMUT: compare (rakip karşılaştırma) ───
@@ -215,6 +235,81 @@ async function sitemap(url) {
     console.log(xml);
 }
 
+// ─── ALT KOMUT: config (AI API anahtarı ayarlama) ───
+const CONFIG_PATH = path.join(os.homedir(), '.seo-audit.env');
+
+const readline = require('readline');
+
+// Satır satır okuma yapan sağlam bir prompt (piped stdin dahil çalışır)
+function createPrompter() {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    const queue = [];
+    let waiting = null;
+    rl.on('line', (line) => {
+        if (waiting) {
+            const w = waiting; waiting = null;
+            w.resolve(line.trim());
+        } else {
+            queue.push(line.trim());
+        }
+    });
+    rl.on('close', () => { if (waiting) waiting.resolve(''); });
+    return function ask(question) {
+        return new Promise((resolve) => {
+            process.stdout.write(question);
+            if (queue.length > 0) {
+                resolve(queue.shift());
+            } else if (process.stdin.isTTY) {
+                waiting = { resolve };
+            } else {
+                // TTY değil: satırı bekle, close olursa boş dön
+                waiting = { resolve };
+            }
+        });
+    };
+}
+
+async function configCommand() {
+    const ask = createPrompter();
+    console.log(banner);
+    printSection('🔑 AI Raporu Yapılandırması');
+    console.log(c('dim', 'AI uzman raporu için bir yapay zeka API anahtarı girin.'));
+    console.log(c('dim', 'Anahtarlar güvenli şekilde ev dizininizde saklanır: ' + CONFIG_PATH + '\n'));
+
+    // Mevcut yapılandırmayı göster
+    const existing = fs.existsSync(CONFIG_PATH) ? fs.readFileSync(CONFIG_PATH, 'utf8') : '';
+    const existingKey = (existing.match(/ANTHROPIC_API_KEY=(.+)/) || [])[1] || '';
+    const existingUrl = (existing.match(/AI_API_URL=(.+)/) || [])[1] || '';
+    const existingModel = (existing.match(/AI_MODEL=(.+)/) || [])[1] || '';
+
+    console.log(c('bold', 'Seçenek 1: Claude (Anthropic resmi API)'));
+    console.log(c('dim', '  Anahtar: https://console.anthropic.com/settings/keys'));
+    console.log(c('bold', 'Seçenek 2: 9routers gibi bir lokal proxy'));
+    console.log(c('dim', '  AI_API_URL + AI_MODEL + (proxy anahtarı)\n'));
+
+    let apiKey = await ask(c('cyan', 'ANTHROPIC_API_KEY girin') + c('dim', (existingKey ? ` [mevcut: ${existingKey.slice(0, 8)}...]` : ' (boş bırakılırsa değişmez)') + ': '));
+    let apiUrl = await ask(c('cyan', 'AI_API_URL girin') + c('dim', ' (proxy varsa, ör. http://localhost:20128/v1, boş = Claude API)') + c('dim', existingUrl ? ` [mevcut: ${existingUrl}]` : '') + ': ');
+    let apiModel = await ask(c('cyan', 'AI_MODEL girin') + c('dim', existingModel ? ` [mevcut: ${existingModel}]` : ' (boş = claude-sonnet-4-5)') + ': ');
+
+    // Boş bırakılanları mevcut değerlerle koru
+    apiKey = apiKey || existingKey;
+    apiUrl = apiUrl || existingUrl;
+    apiModel = apiModel || existingModel || 'claude-sonnet-4-5';
+
+    const lines = [
+        `ANTHROPIC_API_KEY=${apiKey}`,
+        apiUrl ? `AI_API_URL=${apiUrl}` : '# AI_API_URL=',
+        `AI_MODEL=${apiModel}`
+    ];
+    fs.writeFileSync(CONFIG_PATH, lines.join('\n') + '\n', { mode: 0o600 });
+
+    console.log('');
+    console.log(c('green', '✔ Yapılandırma kaydedildi: ') + c('bold', CONFIG_PATH));
+    console.log(c('dim', 'Artık AI raporu üretilebilir. Deneyin:'));
+    console.log(c('cyan', '  seo-audit audit https://example.com'));
+    process.exitCode = 0;
+}
+
 // ─── KOMUT AYRışTIRMA ───
 async function main() {
     const args = process.argv.slice(2);
@@ -227,19 +322,26 @@ async function main() {
         console.log(`  ${c('cyan', 'seo-audit')} ${c('green', 'audit')} <URL> [--pdf]          ${c('dim', '# Tam site SEO denetimi (+ PDF)')}`);
         console.log(`  ${c('cyan', 'seo-audit')} ${c('green', 'compare')} <URL-A> <URL-B>     ${c('dim', '# Rakip karşılaştırma')}`);
         console.log(`  ${c('cyan', 'seo-audit')} ${c('green', 'sitemap')} <URL>               ${c('dim', '# XML sitemap üret')}`);
+        console.log(`  ${c('cyan', 'seo-audit')} ${c('green', 'config')}                     ${c('dim', '# AI API anahtarını ayarla')}`);
         console.log(`  ${c('cyan', 'seo-audit')} ${c('green', '--version')}                   ${c('dim', '# Sürüm bilgisi')}`);
         console.log('');
         console.log(c('bold', 'ÖRNEKLER:'));
+        console.log(`  seo-audit config`);
         console.log(`  seo-audit audit https://example.com`);
         console.log(`  seo-audit audit https://example.com --pdf`);
         console.log(`  seo-audit compare https://example.com https://example.org`);
         console.log('');
-        console.log(c('dim', 'AI raporu için: .private/.env → ANTHROPIC_API_KEY (veya AI_API_URL + AI_MODEL)'));
+        console.log(c('dim', hasAIKey ? '✅ AI anahtarı yapılandırılmış.' : '⚠️ AI raporu için: seo-audit config'));
         return;
     }
 
     if (command === '--version' || command === '-v') {
         console.log('seo-optimizer v1.1.0 (CLI) — © 2026 kuveylan');
+        return;
+    }
+
+    if (command === 'config') {
+        await configCommand();
         return;
     }
 

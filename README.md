@@ -113,7 +113,26 @@ seo-audit compare https://example.com https://example.org
 seo-audit sitemap https://example.com
 ```
 
-> **İpucu:** Repo içinde çalışıyorsanız `node bin/seo-audit.js` veya `npm run seo-audit -- ` de kullanabilirsiniz.
+### 🤖 AI raporu için tek komut: `seo-audit config`
+
+AI uzman raporunu üretmek için bir API anahtarı gerekir. Kurulumdan sonra tek komutla ayarlayın — anahtar ev dizininizdeki `~/.seo-audit.env` dosyasında güvenle saklanır:
+
+```bash
+seo-audit config
+```
+
+`config` sırayla sorar:
+1. **ANTHROPIC_API_KEY** — Claude anahtarı (`https://console.anthropic.com/settings/keys`)
+2. **AI_API_URL** — 9routers gibi bir proxy kullanıyorsanız (örn. `http://localhost:20128/v1`), yoksa boş bırakın
+3. **AI_MODEL** — model adı (boş = `claude-sonnet-4-5`)
+
+> **Alternatif:** Aynı anahtarları proje içinde `.private/.env` dosyasına da yazabilirsiniz. `~/.seo-audit.env` ve `.private/.env` ikisi de okunur.
+>
+> 💡 Anahtar girmezseniz denetim yine çalışır — yalnızca AI raporu bölümü atlanır.
+
+### Kullanım İpuçları
+
+> Repo içinde çalışıyorsanız `node bin/seo-audit.js` veya `npm run seo-audit -- ` de kullanabilirsiniz.
 >
 > `example.com` resmî bir test alanıdır (IANA) — ilk denemede onu kullanın, kendi sitenizi taramadan önce aracın nasıl çalıştığını görün.
 
@@ -144,18 +163,7 @@ Denetim terminalde şunları gösterir:
 ✔ Denetim tamamlandı. (17.4s)
 ```
 
-### AI raporu yapılandırması
-
-`.private/.env` dosyasını düzenleyin (dosya yoksa önceki kurulum adımında oluşturulur):
-
-```bash
-ANTHROPIC_API_KEY="sk-ant-..."           # Claude
-# veya 9routers gibi lokal bir proxy kullanıyorsanız:
-AI_API_URL="http://localhost:20128/v1"
-AI_MODEL="mycombo"
-```
-
-> 💡 AI anahtarı yoksa denetim yine de çalışır — yalnızca AI raporu bölümü atlanır.
+> 💡 CLI'da AI raporu yapılandırması için **`seo-audit config`** komutunu kullanın (yukarıda anlatıldı). Anahtar yoksa denetim yine çalışır — yalnızca AI raporu bölümü atlanır.
 
 ---
 
@@ -175,17 +183,17 @@ cd seo-optimizer
 # 2. Bağımlılıkları kurun
 npm install
 
-# 3. Ortam değişkenlerini ayarlayın
-mkdir -p .private
-cp .env.example .private/.env
-# .private/.env dosyasını düzenleyin (API anahtarları, SMTP)
-# Not: .private/ gitignore'da — API anahtarları ve özel dosyalar asla dışarı açılmaz.
+# 3. (Opsiyonel) AI anahtarını ayarlayın
+seo-audit config          # AI raporu için (veya el ile .private/.env düzenleyin)
+# Not: .private/ ve ~/.seo-audit.env gitignore'da — anahtarlar asla dışarı açılmaz.
 
 # 4. Sunucuyu başlatın
 npm start
 ```
 
 Tarayıcıda açın: **http://localhost:3000**
+
+> 💡 AI anahtarı ve SMTP gerekmez — ikisi de yapılandırılmazsa sistem sorunsuz çalışır; yalnızca AI raporu ve e-posta gönderimi atlanır.
 
 ---
 

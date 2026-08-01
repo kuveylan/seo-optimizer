@@ -6,10 +6,10 @@
 #  CLI'ı çalıştırmak için global kurulum GEREKMEZ:
 #    node bin/seo-audit.js audit https://example.com
 #
-#  Not: Windows PowerShell kullanıyorsanız aşağıdaki 3 komutu
+#  Not: Windows PowerShell kullanıyorsanız aşağıdaki komutları
 #  doğrudan çalıştırın (install.sh yalnızca bash içindir):
 #    npm install
-#    mkdir -p .private && cp .env.example .private/.env
+#    node bin/seo-audit.js config
 #    node bin/seo-audit.js audit https://example.com
 # =============================================================
 set -e
@@ -41,16 +41,7 @@ if ! npm install --no-audit --no-fund 2>&1 | tail -3; then
 fi
 echo -e "${GREEN}✓${NC} Bağımlılıklar hazır"
 
-# ── .env hazırlığı ──
-if [ ! -f ".private/.env" ]; then
-    mkdir -p .private
-    if [ -f ".env.example" ]; then
-        cp .env.example .private/.env
-        echo -e "${YELLOW}→ .env oluşturuldu: .private/.env (API anahtarlarınızı girin)${NC}"
-    fi
-fi
-
 echo -e "\n${GREEN}✔ Kurulum tamamlandı!${NC}"
-echo -e "${DIM}  AI raporu için .private/.env → ANTHROPIC_API_KEY ekleyin${NC}"
-echo -e "${BOLD}  CLI kullanım:${NC} node bin/seo-audit.js audit https://example.com"
+echo -e "${BOLD}  1. AI raporu için:${NC} node bin/seo-audit.js config   ${DIM}(anahtarınızı girin)${NC}"
+echo -e "${BOLD}  2. CLI kullanım:${NC} node bin/seo-audit.js audit https://example.com"
 echo -e "${DIM}  Web arayüzü:  npm start  →  http://localhost:3000${NC}\n"

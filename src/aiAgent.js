@@ -2,7 +2,16 @@
  * SEO Optimizer — © 2026 kuveylan
  * MIT License — Özgün çalışma. İzinsiz kopyalanması / sahiplenilmesi yasaktır.
  */
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.private', '.env') });
+const path = require('path');
+const fs = require('fs');
+// .env: önce repo içi .private/, sonra ev dizinindeki global config (~/.seo-audit.env)
+const localEnv = path.join(__dirname, '..', '.private', '.env');
+if (fs.existsSync(localEnv)) {
+    require('dotenv').config({ path: localEnv });
+} else {
+    const homeEnv = path.join(require('os').homedir(), '.seo-audit.env');
+    if (fs.existsSync(homeEnv)) require('dotenv').config({ path: homeEnv });
+}
 
 async function analyzeWithAI(seoData, apiKey) {
     const ANTHROPIC_API_KEY = apiKey || process.env.ANTHROPIC_API_KEY;

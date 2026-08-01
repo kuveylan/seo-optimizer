@@ -32,3 +32,8 @@ npm-debug.log*
 
 # Puppeteer indirilen tarayıcılar (npm cache'te tutulur)
 .puppeteer-cache/
+
+# seo-audit CLI yapılandırması (ev dizininde tutulur; repo içine oluşursa korunur)
+seo-audit.env
+.seo-audit.env
+
