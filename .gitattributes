@@ -1,0 +1,3 @@
+# Windows .bat dosyaları her zaman CRLF satır sonuyla checkout edilir
+# (cmd, CRLF olmayan .bat dosyalarında garip hatalar verebilir)
+*.bat text eol=crlf
