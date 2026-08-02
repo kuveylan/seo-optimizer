@@ -454,16 +454,6 @@ async function main() {
     const command = args[0];
     const rest = args.slice(1);
 
-    // Windows'ta çift tıklayarak çalıştırıldıysa (stdin terminal değil) pencere
-    // kapanmasın diye çıkışta beklet. Terminalden çalıştırmayı etkilemez.
-    const keepOpenOnWindows = () => {
-        if (process.platform === 'win32' && !process.stdin.isTTY) {
-            try {
-                require('child_process').execSync('pause >nul', { stdio: 'inherit' });
-            } catch (_) { /* pause yoksa sessiz geç */ }
-        }
-    };
-
     if (!command || command === '--help' || command === '-h' || command === 'help') {
         console.log(banner);
         console.log(c('bold', 'KULLANIM:'));
@@ -482,19 +472,16 @@ async function main() {
         console.log(c('dim', hasAIKey ? '✅ AI anahtarı yapılandırılmış.' : '⚠️ AI raporu için: seo-audit config'));
         console.log('');
         console.log(c('cyan', '👉 Örnek: seo-audit audit https://example.com'));
-        keepOpenOnWindows();
         return;
     }
 
     if (command === '--version' || command === '-v') {
         console.log('seo-optimizer v1.1.0 (CLI) — © 2026 kuveylan');
-        keepOpenOnWindows();
         return;
     }
 
     if (command === 'config') {
         await configCommand();
-        keepOpenOnWindows();
         return;
     }
 
@@ -503,12 +490,10 @@ async function main() {
         if (!url) {
             console.error(c('red', '❌ Hata: URL gerekli.'));
             console.error(c('dim', '  Kullanım: seo-audit audit https://example.com'));
-            keepOpenOnWindows();
             process.exitCode = 1;
             return;
         }
         await audit(url, { pdf: rest.includes('--pdf') });
-        keepOpenOnWindows();
         return;
     }
 
@@ -517,12 +502,10 @@ async function main() {
         if (!urlA || !urlB) {
             console.error(c('red', '❌ Hata: İki URL gerekli.'));
             console.error(c('dim', '  Kullanım: seo-audit compare https://a.com https://b.com'));
-            keepOpenOnWindows();
             process.exitCode = 1;
             return;
         }
         await compare(urlA, urlB);
-        keepOpenOnWindows();
         return;
     }
 
@@ -530,18 +513,15 @@ async function main() {
         const url = rest[0];
         if (!url) {
             console.error(c('red', '❌ Hata: URL gerekli.'));
-            keepOpenOnWindows();
             process.exitCode = 1;
             return;
         }
         await sitemap(url);
-        keepOpenOnWindows();
         return;
     }
 
     console.error(c('red', `❌ Bilinmeyen komut: ${command}`));
     console.error(c('dim', 'Yardım için: seo-audit --help'));
-    keepOpenOnWindows();
     process.exitCode = 1;
 }
 

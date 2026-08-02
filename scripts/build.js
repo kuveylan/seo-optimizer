@@ -45,6 +45,9 @@ const APP_FILES = [
     '.env.example', 'README.md', 'LICENSE',
 ];
 
+// Arşiv klasörüne eklenecek yardımcı dosyalar (Windows çift tıklama başlatıcı)
+const EXTRA_PACKAGE_FILES = ['bin/seo-audit.bat'];
+
 // İki giriş noktası: CLI + Web sunucusu
 const ENTRIES = [
     { name: 'seo-audit',  script: 'bin/seo-audit.js' },
@@ -116,6 +119,13 @@ async function packageOutput(exePaths, tag) {
         const src = path.join(ROOT, item);
         const dst = path.join(stageDir, item);
         if (fs.existsSync(src)) fs.cpSync(src, dst, { recursive: true });
+    }
+    // Yardımcı dosyalar (Windows .bat başlatıcı vb.) arşiv köküne kopyalanır
+    for (const rel of EXTRA_PACKAGE_FILES) {
+        const src = path.join(ROOT, rel);
+        if (fs.existsSync(src)) {
+            fs.copyFileSync(src, path.join(stageDir, path.basename(rel)));
+        }
     }
 
     const isWin = process.platform === 'win32';
