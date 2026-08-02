@@ -173,6 +173,53 @@ Denetim bitince **`seo-raporu-<site>.html`** dosyası oluşturulur ve **tarayıc
 
 ---
 
+## 📦 Hazır Paketler (GitHub Releases) — Node kurmadan çalıştır
+
+**Node.js veya npm kurmanıza gerek yok.** Her sürüm, GitHub Releases sayfasında platformunuz için derlenmiş bağımsız çalıştırılabilir paketler olarak yayınlanır:
+
+| Platform | Paket | İçerik |
+|---|---|---|
+| 🪟 Windows | `seo-audit-v1.1.0-win-x64.zip` | `seo-audit-win-x64.exe` (CLI) + `seo-server-win-x64.exe` (Web) |
+| 🐧 Linux | `seo-audit-v1.1.0-linux-x64.tar.gz` | `seo-audit-linux-x64` + `seo-server-linux-x64` |
+| 🍎 macOS (Intel) | `seo-audit-v1.1.0-macos-x64.tar.gz` | `seo-audit-macos-x64` + `seo-server-macos-x64` |
+| 🍎 macOS (Apple Silicon) | `seo-audit-v1.1.0-macos-arm64.tar.gz` | `seo-audit-macos-arm64` + `seo-server-macos-arm64` |
+
+### Kurulum
+
+```bash
+# 1. En son sürümü indir
+#    https://github.com/kuveylan/seo-optimizer/releases/latest
+#    → platformunuza uygun .zip / .tar.gz dosyasını indirin
+
+# 2. Arşivi açın (Windows: ZIP'e sağ tık → Tümünü Ayıkla)
+tar -xzf seo-audit-v1.1.0-linux-x64.tar.gz   # Linux / macOS
+
+# 3. Çalıştırın — Windows'ta seo-audit-win-x64.exe, Linux/macOS'ta seo-audit-linux-x64
+cd seo-audit-v1.1.0-linux-x64
+./seo-audit-linux-x64 audit https://example.com   # CLI denetimi → rapor tarayıcıda açılır
+./seo-server-linux-x64                            # Web arayüzü → http://localhost:3000
+```
+
+> 💡 **PDF raporu için** bilgisayarınızda Chrome, Edge veya Chromium kurulu olmalı. Araç bunları otomatik bulur; bulamazsa `PUPPETEER_EXECUTABLE_PATH` ile tarayıcı yolunu verebilirsiniz. Paket içinde `.env.example` dosyası AI/SMTP ayarları için örnektir.
+
+### Geliştiriciler için: paketleri kendiniz derleyin
+
+```bash
+npm install
+npm run build:release        # mevcut platformun EXE + .zip/.tar.gz arşivini üretir (dist/)
+npm run release -- v1.2.0    # (isteğe bağlı) gh release create ile GitHub'a yükler
+```
+
+> caxa cross-compile yapmaz — her platform kendi binary'sini üretir. Linux/macOS EXE'leri için GitHub Actions matrix kullanılır.
+
+v1.2.0 gibi bir etiket push ettiğinizde **GitHub Actions** otomatik olarak tüm platformlar için paketleri derleyip Release'e ekler:
+
+```bash
+git tag v1.2.0 && git push origin v1.2.0
+```
+
+---
+
 ## 🚀 Hızlı Başlangıç (Web Arayüzü)
 
 ### Gereksinimler

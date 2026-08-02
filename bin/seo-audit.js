@@ -195,8 +195,15 @@ function openHtmlReport(html, filename) {
     fs.writeFileSync(filePath, html, 'utf8');
     console.log(c('green', `  ✓ Rapor kaydedildi: ${c('bold', filePath)}`));
     try {
-        const start = process.platform === 'win32' ? 'start' : process.platform === 'darwin' ? 'open' : 'xdg-open';
-        require('child_process').spawn(start, [filePath], { detached: true, stdio: 'ignore' }).unref();
+        const { exec } = require('child_process');
+        // Windows'ta `start` kabuk komutudur — cmd üzerinden çalıştırılır.
+        // macOS/Linux'ta aç / xdg-open.
+        const cmd = process.platform === 'win32'
+            ? `start "" "${filePath}"`
+            : process.platform === 'darwin'
+                ? `open "${filePath}"`
+                : `xdg-open "${filePath}"`;
+        exec(cmd, { detached: true, stdio: 'ignore' }).unref();
         console.log(c('cyan', `  🌐 Tarayıcıda açıldı. Açılmazsa dosyayı çift tıklayın.`));
     } catch (e) {
         console.log(c('dim', `  Dosyayı tarayıcıda açmak için: ${filePath}`));

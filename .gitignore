@@ -37,3 +37,13 @@ npm-debug.log*
 seo-audit.env
 .seo-audit.env
 
+# Derlenmiş binary ve paket arşivleri (npm run build:release)
+dist/
+*.exe
+*.zip
+*.tar.gz
+
+# CLI rapor çıktıları
+seo-raporu-*.html
+SEO-Analiz-Raporu-*.pdf
+

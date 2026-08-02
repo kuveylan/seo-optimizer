@@ -10,14 +10,11 @@
  * çözümlü kurumsal SEO Raporu (PDF) oluşturur.
  */
 
-const puppeteer = require('puppeteer');
+const { launchBrowser } = require('./browser');
 const marked = require('marked');
 
 async function generatePdfReport({ scanData, crawlData, scored, issues, aiReport, userEmail, baseUrl }) {
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+    const browser = await launchBrowser();
 
     try {
         const page = await browser.newPage();

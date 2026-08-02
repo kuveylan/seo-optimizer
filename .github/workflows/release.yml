@@ -1,0 +1,65 @@
+# SEO Optimizer — Otomatik GitHub Release
+#
+# v* tag push edildiğinde Windows/Linux/macOS binary'lerini caxa ile derler,
+# arşivleri (.zip / .tar.gz) üretir ve GitHub Release varlığı olarak yükler.
+#
+# caxa cross-compile yapmaz — her platform kendi runner'ında kendi
+# binary'sini üretir (matrix).
+#
+#   git tag v1.2.0 && git push origin v1.2.0
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest   # x64
+            label: linux-x64
+          - os: windows-latest  # x64
+            label: win-x64
+          - os: macos-13        # Intel
+            label: macos-x64
+          - os: macos-14        # Apple Silicon
+            label: macos-arm64
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      # Binary'ler sistem tarayıcısına (Chrome/Edge/Chromium) güvenir;
+      # CI'ya ~200MB Chromium indirmeyelim.
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build EXE + archive
+        run: node scripts/build.js
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/*.exe

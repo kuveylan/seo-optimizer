@@ -9,7 +9,10 @@
   "scripts": {
     "start": "node src/server.js",
     "cli": "node bin/seo-audit.js",
-    "seo-audit": "node bin/seo-audit.js"
+    "seo-audit": "node bin/seo-audit.js",
+    "build:binaries": "node scripts/build.js --binaries",
+    "build:release": "node scripts/build.js",
+    "release": "node scripts/release.js"
   },
   "keywords": [
     "seo",
@@ -50,5 +53,9 @@
     "marked": "^18.0.7",
     "nodemailer": "^9.0.3",
     "puppeteer": "^25.4.0"
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1",
+    "caxa": "^3.0.1"
   }
 }
