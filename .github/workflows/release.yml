@@ -27,9 +27,7 @@ jobs:
             label: linux-x64
           - os: windows-latest  # x64
             label: win-x64
-          - os: macos-13        # Intel
-            label: macos-x64
-          - os: macos-14        # Apple Silicon
+          - os: macos-latest    # Apple Silicon (arm64)
             label: macos-arm64
 
     runs-on: ${{ matrix.os }}

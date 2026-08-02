@@ -181,8 +181,7 @@ Denetim bitince **`seo-raporu-<site>.html`** dosyası oluşturulur ve **tarayıc
 |---|---|---|
 | 🪟 Windows | `seo-audit-v1.1.0-win-x64.zip` | `seo-audit-win-x64.exe` (CLI) + `seo-server-win-x64.exe` (Web) |
 | 🐧 Linux | `seo-audit-v1.1.0-linux-x64.tar.gz` | `seo-audit-linux-x64` + `seo-server-linux-x64` |
-| 🍎 macOS (Intel) | `seo-audit-v1.1.0-macos-x64.tar.gz` | `seo-audit-macos-x64` + `seo-server-macos-x64` |
-| 🍎 macOS (Apple Silicon) | `seo-audit-v1.1.0-macos-arm64.tar.gz` | `seo-audit-macos-arm64` + `seo-server-macos-arm64` |
+| 🍎 macOS | `seo-audit-v1.1.0-macos-arm64.tar.gz` | `seo-audit-macos-arm64` + `seo-server-macos-arm64` |
 
 ### Kurulum
 
